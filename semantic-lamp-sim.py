@@ -9,7 +9,6 @@ import pygame
 
 # get audio
 
-
 def capture():
     # Capture audio
 
@@ -119,12 +118,14 @@ print("Starting...")
 
 with open('tokenizer.pkl', 'rb') as handle:
     tokenizer = pickle.load(handle)
+
 SEQUENCE_LENGTH = 300
 
 
 # Load a word2vec model stored in the C *text* format.
 wv_from_text = KeyedVectors.load_word2vec_format(
     datapath('word2vec_pre_kv_c'), binary=False)
+
 # Load keras model
 model = keras.models.load_model('model.h5')
 
