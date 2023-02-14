@@ -1,31 +1,38 @@
+from functions.semanticlamp import SemanticLamp
+import pygame
+import time
 # MAIN PROGRAM
 
 
 print("Starting...")
 
 # load model
+semanticlamp = SemanticLamp()
 
-
-# initalize pygame
-
-# init pygame
-# Initializing Pygame
-
-
-print("GO!")
-
+print("Begin.")
 # record, decode, process, repeat
-while 1:
-    print('What do you have to say?')
-    captured_text = capture()
+RUNNING = True
+while RUNNING:
+    for event in pygame.event.get():
+        pygame.event.wait()
+        print('What do you have to say?')
+        captured_text = semanticlamp.capture()
 
-    if captured_text == 0:
-        continue
+        if captured_text:
+            if 'quit' in str(captured_text):
+                print('OK, bye.')
+                pygame.quit()
+                RUNNING = False
+                break
+            else:
+                print(f"Heard: {captured_text}")
+                start_at = time.time()
+                label, score = semanticlamp.predict(captured_text)
+                print(
+                    f"Predicted sentiment: {label}, Score: {float(score)} , elapsed_time: {time.time()-start_at}")
 
-    if 'quit' in str(captured_text):
-        print('OK, bye.')
-        pygame.quit()
-        break
+                # update colour
+                semanticlamp.update_colour(label, score)
 
-    # Process captured text
-    process_text(captured_text)
+        else:
+            continue

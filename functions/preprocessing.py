@@ -41,7 +41,7 @@ import gensim
 
 class Preprocessing:
     """
-
+    create docstring
     """
 
     def __init__(self):
@@ -52,36 +52,36 @@ class Preprocessing:
         logging.basicConfig(
             format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
         # DATASET
-        DATASET_COLUMNS = ["target", "ids", "date", "flag", "user", "text"]
-        DATASET_ENCODING = "ISO-8859-1"
-        TRAIN_SIZE = 0.8
+        dataset_columns = ["target", "ids", "date", "flag", "user", "text"]
+        dataset_encoding = "ISO-8859-1"
+        train_size = 0.8
 
         # TEXT CLENAING
-        TEXT_CLEANING_RE = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
+        text_cleaning_re = "@\S+|https?:\S+|http?:\S|[^A-Za-z0-9]+"
 
         # WORD2VEC
-        W2V_SIZE = 300
-        W2V_WINDOW = 7
-        W2V_EPOCH = 32
-        W2V_MIN_COUNT = 10
+        w2v_size = 300
+        w2v_window = 7
+        w2v_epoch = 32
+        w2v_min_count = 10
 
         # KERAS
-        SEQUENCE_LENGTH = 300
-        EPOCHS = 8
-        BATCH_SIZE = 1024
+        sequence_length = 300
+        epochs = 8
+        batch_size = 1024
 
         # SENTIMENT
-        POSITIVE = "POSITIVE"
-        NEGATIVE = "NEGATIVE"
-        NEUTRAL = "NEUTRAL"
+        positive = "POSITIVE"
+        negative = "NEGATIVE"
+        neutral = "NEUTRAL"
         # thresholds for what is determined as negative,neutral,positive
-        SENTIMENT_THRESHOLDS = (0.4, 0.7)
+        sentiment_thresholds = (0.4, 0.7)
 
         # EXPORT
-        KERAS_MODEL = "model.h5"
-        WORD2VEC_MODEL = "model.w2v"
-        TOKENIZER_MODEL = "tokenizer.pkl"
-        ENCODER_MODEL = "encoder.pkl"
+        keras_model = "model.h5"
+        word2vec_model = "model.w2v"
+        tokenizer_model = "tokenizer.pkl"
+        encoder_model = "encoder.pkl"
 
         # Load Dataset
         dataset_path = "pre-processing/data/tweets.csv"
@@ -89,7 +89,7 @@ class Preprocessing:
 
         try:
             df = pd.read_csv(
-                dataset_path, encoding=DATASET_ENCODING, names=DATASET_COLUMNS)
+                dataset_path, encoding=dataset_encoding, names=dataset_columns)
 
         except FileNotFoundError:
             logging.error("CSV load failed. Please check csv path")
@@ -117,7 +117,7 @@ class Preprocessing:
         def preprocess(text, stem=False):
 
             # Remove link,user and special characters
-            text = re.sub(TEXT_CLEANING_RE, ' ', str(text).lower()).strip()
+            text = re.sub(text_cleaning_re, ' ', str(text).lower()).strip()
             tokens = []
             for token in text.split():
                 if token not in stop_words:
@@ -131,16 +131,16 @@ class Preprocessing:
 
         # split train and test
         df_train, df_test = train_test_split(
-            df, test_size=1-TRAIN_SIZE, random_state=42)
+            df, test_size=1-train_size, random_state=42)
         print("TRAIN size:", len(df_train))
         print("TEST size:", len(df_test))
 
         # Word2vec
         documents = [_text.split() for _text in df_train.text]
 
-        w2v_model = gensim.models.word2vec.Word2Vec(size=W2V_SIZE,
-                                                    window=W2V_WINDOW,
-                                                    min_count=W2V_MIN_COUNT,
+        w2v_model = gensim.models.word2vec.Word2Vec(size=w2v_size,
+                                                    window=w2v_window,
+                                                    min_count=w2v_min_count,
                                                     workers=8)
 
         w2v_model.build_vocab(documents)
@@ -150,7 +150,7 @@ class Preprocessing:
         print("Vocab size", vocab_size)
 
         w2v_model.train(documents, total_examples=len(
-            documents), epochs=W2V_EPOCH)
+            documents), epochs=w2v_epoch)
 
         w2v_model.most_similar("love")
 
@@ -161,13 +161,13 @@ class Preprocessing:
         print("Total words", vocab_size)
 
         x_train = pad_sequences(tokenizer.texts_to_sequences(
-            df_train.text), maxlen=SEQUENCE_LENGTH)
+            df_train.text), maxlen=sequence_length)
         x_test = pad_sequences(tokenizer.texts_to_sequences(
-            df_test.text), maxlen=SEQUENCE_LENGTH)
+            df_test.text), maxlen=sequence_length)
 
         # Encoder
         labels = df_train.target.unique().tolist()
-        labels.append(NEUTRAL)
+        labels.append(neutral)
 
         encoder = LabelEncoder()
         encoder.fit(df_train.target.tolist())
@@ -183,15 +183,15 @@ class Preprocessing:
         print("x_train", x_train.shape)
         print("x_test", x_test.shape)
 
-        embedding_matrix = np.zeros((vocab_size, W2V_SIZE))
+        embedding_matrix = np.zeros((vocab_size, w2v_size))
         for word, i in tokenizer.word_index.items():
             if word in w2v_model.wv:
                 embedding_matrix[i] = w2v_model.wv[word]
             print(embedding_matrix.shape)
 
         # embedding layer
-        embedding_layer = Embedding(vocab_size, W2V_SIZE, weights=[
-                                    embedding_matrix], input_length=SEQUENCE_LENGTH, trainable=False)
+        embedding_layer = Embedding(vocab_size, w2v_size, weights=[
+                                    embedding_matrix], input_length=sequence_length, trainable=False)
 
         # build model
         model = Sequential()
@@ -213,14 +213,14 @@ class Preprocessing:
 
         # train
         history = model.fit(x_train, y_train,
-                            batch_size=BATCH_SIZE,
-                            epochs=EPOCHS,
+                            batch_size=batch_size,
+                            epochs=epochs,
                             validation_split=0.1,
                             verbose=1,
                             callbacks=callbacks)
 
         # evaluate
-        score = model.evaluate(x_test, y_test, batch_size=BATCH_SIZE)
+        score = model.evaluate(x_test, y_test, batch_size=batch_size)
 
         print("ACCURACY:", score[1])
         print("LOSS:", score[0])
@@ -249,20 +249,20 @@ class Preprocessing:
         # predict
         def decode_sentiment(score, include_neutral=True):
             if include_neutral:
-                label = NEUTRAL
-                if score <= SENTIMENT_THRESHOLDS[0]:
-                    label = NEGATIVE
-                elif score >= SENTIMENT_THRESHOLDS[1]:
-                    label = POSITIVE
+                label = neutral
+                if score <= sentiment_thresholds[0]:
+                    label = negative
+                elif score >= sentiment_thresholds[1]:
+                    label = positive
                 return label
             else:
-                return NEGATIVE if score < 0.5 else POSITIVE
+                return negative if score < 0.5 else positive
 
         def predict(text, include_neutral=True):
             start_at = time.time()
             # Tokenize text
             x_test = pad_sequences(tokenizer.texts_to_sequences(
-                [text]), maxlen=SEQUENCE_LENGTH)
+                [text]), maxlen=sequence_length)
             # Predict
             score = model.predict([x_test])[0]
             # Decode sentiment
@@ -322,7 +322,7 @@ class Preprocessing:
             accuracy_score(y_test_1d, y_pred_1d)
 
             # save model
-            model.save(KERAS_MODEL)
-            w2v_model.save(WORD2VEC_MODEL)
-            pickle.dump(tokenizer, open(TOKENIZER_MODEL, "wb"), protocol=0)
-            pickle.dump(encoder, open(ENCODER_MODEL, "wb"), protocol=0)
+            model.save(keras_model)
+            w2v_model.save(word2vec_model)
+            pickle.dump(tokenizer, open(tokenizer_model, "wb"), protocol=0)
+            pickle.dump(encoder, open(encoder_model, "wb"), protocol=0)
