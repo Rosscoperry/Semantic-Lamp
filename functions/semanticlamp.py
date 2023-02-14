@@ -55,7 +55,9 @@ class SemanticLamp:
             return None
 
     def predict(self, text, include_neutral=True):
-
+        """
+        create docstring
+        """
         # Tokenize text
         x_test = pad_sequences(self.tokenizer.texts_to_sequences(
             [text]), maxlen=300)  # match with tokenizer created in pre-processing
@@ -79,7 +81,9 @@ class SemanticLamp:
         return label, score
 
     def update_colour(self, label, score):
-
+        """
+        create docstring 
+        """
         self.norm_score = (score - 0.5) * 100
 
         if label == "POSITIVE":
