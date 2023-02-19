@@ -83,6 +83,7 @@ class SemanticLamp:
     def update_colour(self, label, score):
         """
         create docstring 
+        
         """
         self.norm_score = (score - 0.5) * 100
 
