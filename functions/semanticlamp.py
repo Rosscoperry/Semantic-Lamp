@@ -8,8 +8,12 @@ import pickle
 import pygame
 
 
+def rgb_to_hex(r, g, b):
+    return '0x{:02x}{:02x}{:02x}'.format(r, g, b)
+
+
 class SemanticLamp:
-    def __init__(self):
+    def __init__(self, pygamesim=False):
 
         # initialize tokenizer
         try:
@@ -22,15 +26,20 @@ class SemanticLamp:
         # Load keras model
         self.model = keras.models.load_model('model.h5')
 
-        # Initializing surface
-        pygame.display.init()
-        self.lamp_sim = pygame.display.set_mode((400, 300))
-
+        # starting colours
         self.red = 123
         self.green = 123
-        # Initialing RGB Color
-        self.lamp_sim.fill((self.red, self.green, 0))
-        pygame.display.flip()
+
+        self.pygamesim = pygamesim
+        if pygamesim is True:
+
+            # Initializing surface
+            pygame.display.init()
+            self.lamp_sim = pygame.display.set_mode((400, 300))
+
+            # Initialing RGB Color
+            self.lamp_sim.fill((self.red, self.green, 0))
+            pygame.display.flip()
 
         return
 
@@ -83,29 +92,34 @@ class SemanticLamp:
     def update_colour(self, label, score):
         """
         create docstring 
-        
+
         """
-        self.norm_score = (score - 0.5) * 100
+        norm_score = (score - 0.5) * 100
 
         if label == "POSITIVE":
-            self.green = self.green + self.norm_score
-            self.red = self.red - self.norm_score
+            self.green = self.green + norm_score
+            self.red = self.red - norm_score
             print("positive")
 
         elif label == "NEGATIVE":
-            self.green = self.green + self.norm_score
-            self.red = (self.red - self.norm_score)
+            self.green = self.green + norm_score
+            self.red = (self.red - norm_score)
             print("negative")
         else:
             pass
 
-        self.green = 0 if self.green < 0 else 255 if self.green > 255 else self.green
-        self.red = 0 if self.red < 0 else 255 if self.red > 255 else self.red
+        self.green = int(0 if self.green <
+                         0 else 255 if self.green > 255 else self.green)
+        self.red = int(0 if self.red < 0 else 255 if self.red >
+                       255 else self.red)
 
-        color = (self.red, self.green, 0)
-        print(color)
-        # Changing surface color
-        self.lamp_sim.fill(color)
-        pygame.display.update()
+        colour = [self.red, self.green, 0]
+        print(colour)
 
-        return
+        colour = rgb_to_hex(colour[0], colour[1], colour[2])
+        if self.pygamesim is True:
+            # Changing surface colour
+            self.lamp_sim.fill(colour)
+            pygame.display.update()
+
+        return colour
