@@ -78,13 +78,13 @@ class Preprocessing:
         sentiment_thresholds = (0.4, 0.7)
 
         # EXPORT
-        keras_model = "model.h5"
-        word2vec_model = "model.w2v"
-        tokenizer_model = "tokenizer.pkl"
-        encoder_model = "encoder.pkl"
+        keras_model = "preprocessing-files/model/model.h5"
+        word2vec_model = "preprocessing-files/model/model.w2v"
+        tokenizer_model = "preprocessing-files/model/tokenizer.pkl"
+        encoder_model = "preprocessing-files/model/encoder.pkl"
 
         # Load Dataset
-        dataset_path = "pre-processing/data/tweets.csv"
+        dataset_path = "preprocessing-files/data/tweets.csv"
         print("Open file:", dataset_path)
 
         try:
@@ -108,7 +108,7 @@ class Preprocessing:
         plt.figure(figsize=(16, 8))
         plt.bar(target_cnt.keys(), target_cnt.values())
         plt.title("Dataset labels distribuition")
-        plt.savefig('dataset_distribuition.png')
+        plt.savefig('preprocessing-files/images/dataset_distribuition.png')
 
         # Pre-Processing dataset
         stop_words = stopwords.words("english")
@@ -244,7 +244,8 @@ class Preprocessing:
         plt.title('Training and validation loss')
         plt.legend()
 
-        plt.savefig('Training_and_validation_loss.png')
+        plt.savefig(
+            'preprocessing-files/images/Training_and_validation_loss.png')
 
         # predict
         def decode_sentiment(score, include_neutral=True):
@@ -313,7 +314,7 @@ class Preprocessing:
             plt.figure(figsize=(12, 12))
             plot_confusion_matrix(
                 cnf_matrix, classes=df_train.target.unique(), title="Confusion matrix")
-            plt.savefig('confusion_matrix.png')
+            plt.savefig('preprocessing-files/images/confusion_matrix.png')
 
             # classification report
             print(classification_report(y_test_1d, y_pred_1d))
