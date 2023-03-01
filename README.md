@@ -48,7 +48,7 @@ python client.py
 
 ### Connect with me: 
 
-[linkedin]: https://www.linkedin.com/in/rossalexanderperry/
+[linkedin]: (https://www.linkedin.com/in/rossalexanderperry/)
 
 #### Fancy trying to improve what I made?
 * Write some tests ;) 
