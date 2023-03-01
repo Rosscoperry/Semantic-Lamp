@@ -25,21 +25,17 @@ class MainHandler(tornado.websocket.WebSocketHandler):
     def open(self):
         logging.info("A client connected.")
         clients.append(self)
-		
+
     def on_close(self):
         logging.info("A client disconnected")
         clients.remove(self)
         os.system("expled 0x000000")
 
     def on_message(self, message):
-        #logging.info("message: {}".format(message))
-        
-        #if message == "hello":
-        #	logging.info("who is this guy?")
-        #	for client in clients:
-        #		client.write_message('You said to us: ' + message)
+
         logging.info(message.decode("utf-8"))
         os.system("expled " + message)
+
 
 def main():
     tornado.options.parse_command_line()

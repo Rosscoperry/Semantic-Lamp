@@ -10,9 +10,9 @@ class Client(object):
         self.url = url
         self.timeout = timeout
         self.ioloop = IOLoop.instance()
-        self.ws = None
+        self.websock = None
         self.connect()
-        PeriodicCallback(self.keep_alive, 10000).start()
+        PeriodicCallback(self.keep_alive, 20000).start()
         self.ioloop.start()
 
     @gen.coroutine
@@ -22,7 +22,7 @@ class Client(object):
         """
         print("trying to connect")
         try:
-            self.ws = yield websocket_connect(self.url)
+            self.websock = yield websocket_connect(self.url)
         except Exception:
             print("connection error")
         else:
@@ -44,7 +44,7 @@ class Client(object):
                 if "quit" in str(captured_text):
                     print("okay, bye.")
                     print("connection closed")
-                    self.ws = None
+                    self.websock = None
                     exit()
                 else:
                     print(f"Heard: {captured_text}")
@@ -55,27 +55,19 @@ class Client(object):
                     msg = semanticlamp.update_colour(label, score)
                     print(msg)
 
-                    if self.ws is None:
+                    if self.websock is None:
                         self.connect()
                     else:
-                        self.ws.write_message(str(msg))
-
-            # mic live
-
-            # msg = yield predict_sentiment()
-                # upon running program mic must be live
-                # when using command "quit" the mic must close and the connections must close
-                # program must send an array indicating a hex colour.
-                # server must interpret and have two bars labeled G ########## and B ########## levels adjust according to sentiment
+                        self.websock.write_message(str(msg))
 
     def keep_alive(self):
         """
         ***write docstring***
         """
-        if self.ws is None:
+        if self.websock is None:
             self.connect()
         else:
-            self.ws.write_message("hello")
+            self.websock.write_message("hello")
 
 
 # load model
@@ -83,9 +75,3 @@ semanticlamp = semanticlamp.SemanticLamp()
 
 if __name__ == "__main__":
     client = Client("ws://xxx.xxx.x.xx:8888", 5)
-
-
-# * * * * * python /root/python/tempLCD.py
-# #
-# */1 * * * * /root/rgb-led.sh
-# # runs led on extension board
