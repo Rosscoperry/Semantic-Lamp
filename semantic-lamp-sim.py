@@ -7,7 +7,7 @@ import time
 print("Starting...")
 
 # load model
-semanticlamp = SemanticLamp()
+semanticlamp = SemanticLamp(pygamesim=True)
 
 print("Begin.")
 # record, decode, process, repeat

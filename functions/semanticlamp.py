@@ -8,23 +8,19 @@ import pickle
 import pygame
 
 
-def rgb_to_hex(r, g, b):
-    return '0x{:02x}{:02x}{:02x}'.format(r, g, b)
-
-
 class SemanticLamp:
     def __init__(self, pygamesim=False):
 
         # initialize tokenizer
         try:
-            with open('tokenizer.pkl', 'rb') as handle:
+            with open('preprocessing-files/model/tokenizer.pkl', 'rb') as handle:
                 self.tokenizer = pickle.load(handle)
         except:
             raise Exception("Path to tokenizer missing")
 
         # initalizer keras model
         # Load keras model
-        self.model = keras.models.load_model('model.h5')
+        self.model = keras.models.load_model('preprocessing-files/model/model.h5')
 
         # starting colours
         self.red = 123
@@ -116,7 +112,8 @@ class SemanticLamp:
         colour = [self.red, self.green, 0]
         print(colour)
 
-        colour = rgb_to_hex(colour[0], colour[1], colour[2])
+        colour = '0x{:02x}{:02x}{:02x}'.format(colour[0], colour[1], colour[2])
+
         if self.pygamesim is True:
             # Changing surface colour
             self.lamp_sim.fill(colour)
